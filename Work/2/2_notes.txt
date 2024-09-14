@@ -1,0 +1,267 @@
+-----------------------------------------------------------------
+# Exercise 2.8: How to format numbers
+-----------------------------------------------------------------
+>>> value = 42.12757
+>>> print(value)
+42.12757
+
+>>> print(f'{value:0.4f}')
+42.1276
+
+>>> print(f'{value:>16.4f}')
+         42.1276
+
+>>> print(f'{value:>16.2f}')
+           42.13
+
+>>> print(f'{value:*>16.2f}')
+***********42.13
+
+>>>
+
+-----------------------------------------------------------------
+2.4 Sequences
+-----------------------------------------------------------------
+
+--------------------------------------
+enumerate() function
+--------------------------------------
+The enumerate function adds an extra counter value to iteration.
+
+>>> names = ['AAA', 'BBB', 'CCC']
+>>> names
+['AAA', 'BBB', 'CCC']
+>>>
+>>> for i, name in enumerate(names):
+...     print(i, name)
+...
+0 AAA
+1 BBB
+2 CCC
+>>>
+>>>
+>>> points = [
+...   (1, 4),(10, 40),(23, 14),(5, 6),(7, 8)
+... ]
+>>>
+>>> for x, y in points:
+...     print(x, y)
+...
+1 4
+10 40
+23 14
+5 6
+7 8
+>>> for i, (x, y) in enumerate(points):
+...     print(i, x, y)
+...
+0 1 4
+1 10 40
+2 23 14
+3 5 6
+4 7 8
+>>>
+
+--------------------------------------
+The general form is enumerate(sequence [, start = 0]). start is optional. A good example of using enumerate() is tracking line numbers while reading a file:
+
+with open(filename) as f:
+    for lineno, line in enumerate(f, start=1):
+        ...
+
+In the end, enumerate is just a nice shortcut for:
+
+i = 0
+for x in s:
+    statements
+    i += 1
+
+Using enumerate is less typing and runs slightly faster.
+
+
+--------------------------------------
+zip() function
+--------------------------------------
+
+>>> columns = ['name', 'shares', 'price']
+>>> values = ['GOOG', 100, 490.1 ]
+>>>
+>>> pairs = zip(columns, values)
+>>> pairs
+<zip object at 0x000001F8BAAC8D40>
+>>>
+>>> [print(data) for data in pairs]
+('name', 'GOOG')
+('shares', 100)
+('price', 490.1)
+[None, None, None]
+>>>
+
+-----------------------------------------------------------------
+Exercise 2.17: Inverting a dictionary
+-----------------------------------------------------------------
+
+>>> prices = {
+...         'GOOG' : 490.1,
+...         'AA' : 23.45,
+...         'IBM' : 91.1,
+...         'MSFT' : 34.23
+...     }
+>>>
+>>> prices.keys()
+dict_keys(['GOOG', 'AA', 'IBM', 'MSFT'])
+>>>
+>>> prices.values()
+dict_values([490.1, 23.45, 91.1, 34.23])
+>>>
+>>> pricelist = list(zip(prices.values(), prices.keys()))
+>>> pricelist
+[(490.1, 'GOOG'), (23.45, 'AA'), (91.1, 'IBM'), (34.23, 'MSFT')]
+>>>
+>>> min(pricelist)
+(23.45, 'AA')
+>>>
+>>> max(pricelist)
+(490.1, 'GOOG')
+>>>
+>>> sorted(pricelist)
+[(23.45, 'AA'), (34.23, 'MSFT'), (91.1, 'IBM'), (490.1, 'GOOG')]
+>>>
+>>>
+
+
+-----------------------------------------------------------------
+2.5 collections module
+-----------------------------------------------------------------
+https://dabeaz-course.github.io/practical-python/Notes/02_Working_with_data/05_Collections.html
+
+
+-----------------------------------------------------------------
+2.6 List Comprehensions
+-----------------------------------------------------------------
+https://dabeaz-course.github.io/practical-python/Notes/02_Working_with_data/06_List_comprehension.html
+
+
+--------------------------------------
+Exercise 2.19: List comprehensions
+--------------------------------------
+Try a few simple list comprehensions just to become familiar with the syntax.
+
+>>> num = list(range(4))
+>>> num
+[0, 1, 2, 3]
+>>>
+>>> twice = [x*2 for x in num]
+>>> twice
+[0, 2, 4, 6]
+>>>
+>>> squares = [x*x for x in num]
+>>> squares
+[0, 1, 4, 9]
+>>>
+
+
+--------------------------------------
+Exercise 2.20: Sequence Reductions
+--------------------------------------
+Compute the total cost of the portfolio using a single Python statement.
+
+$ clear; winpty py -i 2/2_report_16.py
+
+Reading Portfolio...
+Calculating Portfolio value...
+Current Portfolio Value: 44671.15
+
+Reading current stock prices...
+Exception:: Catch ALL Exceptions >> Type: 'list index out of range', Row #: 31, Data: '[]'
+
+>>>
+>>> cost = sum([s['shares'] * s['price'] for s in portfolio])
+>>> cost
+44671.15
+>>>
+>>> value = sum([ s['shares'] * prices[s['name']] for s in portfolio ])
+>>> value
+28686.1
+>>>
+>>> [ s['shares'] * s['price'] for s in portfolio ]
+[3220.0000000000005, 4555.0, 12516.0, 10246.0, 3835.1499999999996, 3254.9999999999995, 7044.0]
+>>> sum(_)
+44671.15
+>>>
+
+
+--------------------------------------
+Exercise 2.21: Data Queries
+--------------------------------------
+Try the following examples of various data queries.
+
+$ clear; winpty py -i 2/2_report_16.py
+
+Reading Portfolio...
+Calculating Portfolio value...
+Current Portfolio Value: 44671.15
+
+Reading current stock prices...
+Exception:: Catch ALL Exceptions >> Type: 'list index out of range', Row #: 31, Data: '[]'
+
+>>>
+>>> more100 = [ s for s in portfolio if s['shares'] > 100 ]
+>>> more100
+[{'name': 'CAT', 'shares': 150, 'price': 83.44}, {'name': 'MSFT', 'shares': 200, 'price': 51.23}]
+>>>
+>>> msftibm = [ s for s in portfolio if s['name'] in {'MSFT', 'IBM'} ]
+>>> msftibm
+[{'name': 'IBM', 'shares': 50, 'price': 91.1}, {'name': 'MSFT', 'shares': 200, 'price': 51.23}, {'name': 'MSFT', 'shares': 50
+, 'price': 65.1}, {'name': 'IBM', 'shares': 100, 'price': 70.44}]
+>>>
+>>> cost10k = [ s for s in portfolio if s['shares'] * s['price'] > 10000 ]
+>>> cost10k
+[{'name': 'CAT', 'shares': 150, 'price': 83.44}, {'name': 'MSFT', 'shares': 200, 'price': 51.23}]
+>>>
+
+
+--------------------------------------
+Exercise 2.22: Data Extraction
+--------------------------------------
+Show how you could build a list of tuples (name, shares) where name and shares are taken from portfolio.
+
+$ clear; winpty py -i 2/2_report_16.py
+
+Reading Portfolio...
+Calculating Portfolio value...
+Current Portfolio Value: 44671.15
+
+Reading current stock prices...
+Exception:: Catch ALL Exceptions >> Type: 'list index out of range', Row #: 31, Data: '[]'
+
+>>>
+>>> name_shares = [ (s['name'], s['shares']) for s in portfolio ]
+>>> name_shares
+[('AA', 100), ('IBM', 50), ('CAT', 150), ('MSFT', 200), ('GE', 95), ('MSFT', 50), ('IBM', 100)]
+>>>
+>>> names = [ s['name'] for s in portfolio ]
+>>> names
+['AA', 'IBM', 'CAT', 'MSFT', 'GE', 'MSFT', 'IBM']
+>>>
+>>> names2 = { s['name'] for s in portfolio }
+>>> names2
+{'IBM', 'CAT', 'GE', 'MSFT', 'AA'}
+>>>
+>>> holdings = { name: 0 for name in names }
+>>> holdings
+{'AA': 0, 'IBM': 0, 'CAT': 0, 'MSFT': 0, 'GE': 0}
+>>>
+>>> for s in portfolio:
+...     holdings[s['name']] += s['shares']
+...
+>>> holdings
+{'AA': 100, 'IBM': 150, 'CAT': 150, 'MSFT': 250, 'GE': 95}
+>>>
+>>> portfolio_prices = { name: prices[name] for name in names }
+>>> portfolio_prices
+{'AA': 9.22, 'IBM': 106.28, 'CAT': 35.46, 'MSFT': 20.89, 'GE': 13.48}
+>>>
+
+
+-----------------------------------------------------------------
