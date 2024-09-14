@@ -1,0 +1,91 @@
+----------------------------------------------------------------------------
+3. Program Organization
+----------------------------------------------------------------------------
+
+--------------------------------------
+Exercise 3.11: Module imports
+--------------------------------------
+
+>>>
+>>> import bounce
+>>> import mortgage
+>>> import report
+>>>
+>>> import fileparse
+>>> help(fileparse)
+Help on module fileparse:
+
+NAME
+    fileparse
+
+DESCRIPTION
+    # fileparse.py
+    #
+    # Exercise 3.3
+
+FUNCTIONS
+    convert_str_to_date_object(data)
+
+    convert_str_to_time_object(data)
+
+    parse_csv(filename: str, file_data_delimiter: str = ',', file_has_header: bool = True, select: list = None, types: list =
+ None, silence_errors: bool = False) -> list
+        Parse a CSV file into the list of records.
+
+FILE
+    e:\learn\active\python\practical-python\work\fileparse.py
+
+
+>>>
+>>> dir(fileparse)
+['__builtins__', '__cached__', '__doc__', '__file__', '__loader__', '__name__', '__package__', '__spec__', 'convert_str_to_da
+te_object', 'convert_str_to_time_object', 'csv', 'datetime', 'os', 'parse_csv']
+>>>
+>>>
+>>> portfolio = fileparse.parse_csv('portfolio.csv',select=['name','shares','price'], types=[str,int,float])
+>>> portfolio
+[{'name': 'AA', 'shares': 100, 'price': 32.2}, {'name': 'IBM', 'shares': 50, 'price': 91.1}, {'name': 'CAT', 'shares': 150, '
+price': 83.44}, {'name': 'MSFT', 'shares': 200, 'price': 51.23}, {'name': 'GE', 'shares': 95, 'price': 40.37}, {'name': 'MSFT
+', 'shares': 50, 'price': 65.1}, {'name': 'IBM', 'shares': 100, 'price': 70.44}]
+>>>
+>>>
+>>> pricelist = fileparse.parse_csv('prices.csv',types=[str,float], file_has_header=False)
+>>> pricelist
+[('AA', 9.22), ('AXP', 24.85), ('BA', 44.85), ('BAC', 11.27), ('C', 3.72), ('CAT', 35.46), ('CVX', 66.67), ('DD', 28.47), ('D
+IS', 24.22), ('GE', 13.48), ('GM', 0.75), ('HD', 23.16), ('HPQ', 34.35), ('IBM', 106.28), ('INTC', 15.72), ('JNJ', 55.16), ('
+JPM', 36.9), ('KFT', 26.11), ('KO', 49.16), ('MCD', 58.99), ('MMM', 57.1), ('MRK', 27.58), ('MSFT', 20.89), ('PFE', 15.19), (
+'PG', 51.94), ('T', 24.79), ('UTX', 52.61), ('VZ', 29.26), ('WMT', 49.74), ('XOM', 69.35)]
+>>>
+>>> prices = dict(pricelist)
+>>> prices
+{'AA': 9.22, 'AXP': 24.85, 'BA': 44.85, 'BAC': 11.27, 'C': 3.72, 'CAT': 35.46, 'CVX': 66.67, 'DD': 28.47, 'DIS': 24.22, 'GE':
+ 13.48, 'GM': 0.75, 'HD': 23.16, 'HPQ': 34.35, 'IBM': 106.28, 'INTC': 15.72, 'JNJ': 55.16, 'JPM': 36.9, 'KFT': 26.11, 'KO': 4
+9.16, 'MCD': 58.99, 'MMM': 57.1, 'MRK': 27.58, 'MSFT': 20.89, 'PFE': 15.19, 'PG': 51.94, 'T': 24.79, 'UTX': 52.61, 'VZ': 29.2
+6, 'WMT': 49.74, 'XOM': 69.35}
+>>>
+>>> prices['IBM']
+106.28
+>>>
+>>>
+>>> from fileparse import parse_csv
+>>> portfolio = parse_csv('portfolio.csv',select=['name','shares','price'], types=[str,int,float])
+>>> portfolio
+[{'name': 'AA', 'shares': 100, 'price': 32.2}, {'name': 'IBM', 'shares': 50, 'price': 91.1}, {'name': 'CAT', 'shares': 150, '
+price': 83.44}, {'name': 'MSFT', 'shares': 200, 'price': 51.23}, {'name': 'GE', 'shares': 95, 'price': 40.37}, {'name': 'MSFT
+', 'shares': 50, 'price': 65.1}, {'name': 'IBM', 'shares': 100, 'price': 70.44}]
+>>>
+
+
+----------------------------------------------------------------------------
+
+
+
+
+
+----------------------------------------------------------------------------
+
+
+
+
+
+----------------------------------------------------------------------------

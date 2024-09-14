@@ -1,6 +1,8 @@
-# fileparse.py (Original file: '03_fileparse_10.py')
-#
-# Exercise 3.3
+# Exercise 3.9: Catching exceptions
+# 'Data/portfolio.csv'
+# 'Data/missing.csv'
+# 'Data/portfoliodate.csv'
+# 'Data/portfolio.csv'
 
 import os
 import csv
@@ -25,8 +27,7 @@ def parse_csv(
         file_data_delimiter: str = ",",
         file_has_header: bool = True,
         select: list = None, 
-        types: list = None,
-        silence_errors: bool = False) -> list:
+        types: list = None) -> list:
     '''
     Parse a CSV file into the list of records.
     '''
@@ -74,10 +75,61 @@ def parse_csv(
                     record = tuple(row)
                 records.append(record)
             except ValueError as ve:
-                if silence_errors == False:
-                    print(f"  >>> ValueError:: Bad Data >> Row #: {rowno}, Data: '{row}', '{ve}'")
+                print(f"  >>> ValueError:: Bad Data >> Row #: {rowno}, Data: '{row}', '{ve}'")
             except Exception as ex:
-                if silence_errors == False:
-                    print(f"  >>> Exception:: Catch ALL Exceptions >> Type: '{type(ex).__name__}', '{ex}', Row #: {rowno}, Data: '{row}'") 
+                print(f"  >>> Exception:: Catch ALL Exceptions >> Type: '{type(ex).__name__}', '{ex}', Row #: {rowno}, Data: '{row}'") 
 
     return records
+
+
+# portfolio_filename = 'portfolio.csv'
+portfolio_filename = 'portfoliodate.csv'
+print(f'Reading portfolio (1) from "{portfolio_filename}"...')
+portfolio1 = parse_csv(portfolio_filename)
+
+print(f'Reading portfolio (2) from "{portfolio_filename}"...')
+portfolio2 = parse_csv(
+    portfolio_filename, 
+    select=['name', 'shares', 'price'])
+
+print(f'Reading portfolio (3) from "{portfolio_filename}"...')
+portfolio3 = parse_csv(
+    portfolio_filename,
+    types=[str, convert_str_to_date_object, convert_str_to_time_object, int, float])
+
+portfolio_filename = 'missing.csv'
+print(f'Reading portfolio (4) from "{portfolio_filename}"...')
+portfolio4 = parse_csv(
+    portfolio_filename, 
+    select=['name', 'shares', 'price'],
+    types=[str, int, float])
+
+portfolio_filename = 'portfolio.dat'
+print(f'Reading portfolio (5) from "{portfolio_filename}"...')
+portfolio5 = parse_csv(
+    portfolio_filename, 
+    file_has_header=True,
+    file_data_delimiter=" ",
+    select=['name', 'shares', 'price'],
+    types=[str, int, float])
+
+
+prices_filename = 'prices.csv'
+print(f'Reading prices (1) from "{prices_filename}"...')
+prices1 = parse_csv(
+    prices_filename, 
+    file_has_header=False)
+
+print(f'Reading prices (2) from "{prices_filename}"...')
+prices2 = parse_csv(
+    prices_filename, 
+    file_has_header=False,
+    types=[str, float])
+
+portfolio_filename = 'portfoliodate.csv'
+print(f'Reading portfolio (6) from "{portfolio_filename}" (Throwing Exception example for bad parameters)...')
+portfolio6 = parse_csv(
+    portfolio_filename, 
+    file_has_header=False,
+    select=['name', 'shares', 'price'],
+    types=[str, int, float])
