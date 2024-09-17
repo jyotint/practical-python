@@ -1,6 +1,7 @@
 ----------------------------------------------------------------------------
-3. Program Organization
+03. Program Organization
 ----------------------------------------------------------------------------
+https://dabeaz-course.github.io/practical-python/Notes/03_Program_organization/00_Overview.html
 
 --------------------------------------
 Exercise 3.11: Module imports

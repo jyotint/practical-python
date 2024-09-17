@@ -1,0 +1,351 @@
+----------------------------------------------------------------------------
+05. Inner Workings of Python Objects
+----------------------------------------------------------------------------
+https://dabeaz-course.github.io/practical-python/Notes/05_Object_model/00_Overview.html
+
+----------------------------------------------------------------------------
+Dicts and Modules
+--------------------------------------
+
+# foo.py
+
+x = 42
+def bar():
+    ...
+
+def spam():
+    ...
+
+
+If you inspect foo.__dict__ or globals(), you’ll see the dictionary.
+
+{
+    'x' : 42,
+    'bar' : <function bar>,
+    'spam' : <function spam>
+}
+
+----------------------------------------------------------------------------
+Dicts and Objects
+--------------------------------------
+A dictionary holds the instance data, __dict__.
+
+>>> s = Stock('GOOG', 100, 490.1)
+>>> s.__dict__
+{'name' : 'GOOG', 'shares' : 100, 'price': 490.1 }
+
+
+----------------------------------------------------------------------------
+Class Members
+--------------------------------------
+
+The dictionary is in Stock.__dict__.
+
+{
+    'cost': <function>,
+    'sell': <function>,
+    '__init__': <function>
+}
+
+
+----------------------------------------------------------------------------
+Instances and Classes
+--------------------------------------
+Instances and classes are linked together. The __class__ attribute refers back to the class.
+
+>>> s = Stock('GOOG', 100, 490.1)
+>>> s.__dict__
+{ 'name': 'GOOG', 'shares': 100, 'price': 490.1 }
+>>> s.__class__
+<class '__main__.Stock'>
+>>>
+
+
+----------------------------------------------------------------------------
+How inheritance works
+--------------------------------------
+Classes may inherit from other classes.
+
+class A(B, C):
+    ...
+
+The base classes are stored in a tuple in each class.
+
+>>> A.__bases__
+(<class '__main__.B'>, <class '__main__.C'>)
+>>>
+
+This provides a link to parent classes.
+
+
+----------------------------------------------------------------------------
+Attributes
+--------------------------------------
+
+----- Application
+globals()
+
+
+----- Module
+__dict__
+
+
+----- class
+__init__
+__str__         # Used with `str()`
+__repr__        # Used with `repr()`    Note: The convention for __repr__() is to return a string that, when fed to eval(), will recreate the underlying object. If this is not possible, some kind of easily readable representation is used instead.
+
+__dict__
+__class__
+__bases__
+__mro__         MRO - Method Resolution Order
+
+
+----- Instance of a Class
+__self__
+__dict__
+setattr
+getattr
+delattr
+hasattr
+
+
+----------------------------------------------------------------------------
+The “Mixin” Pattern
+--------------------------------------
+The Mixin pattern is a class with a fragment of code.
+
+class Loud:
+    def noise(self):
+        return super().noise().upper()
+This class is not usable in isolation. It mixes with other classes via inheritance.
+
+class LoudDog(Loud, Dog):
+    pass
+
+class LoudBike(Loud, Bike):
+    pass
+Miraculously, loudness was now implemented just once and reused in two completely unrelated classes. This sort of trick is one of the primary uses of multiple inheritance in Python.
+
+
+----------------------------------------------------------------------------
+Exercise 5.1: Representation of Instances
+--------------------------------------
+>>> Stock
+<class 'stock.Stock'>
+>>>
+>>> goog = Stock('GOOG', 100, 490.10)
+>>> ibm = Stock('IBM', 50, 91.23)
+>>>
+>>> goog.__dict__
+{'name': 'GOOG', 'shares': 100, 'price': 490.1}
+>>>
+>>> ibm.__dict__
+{'name': 'IBM', 'shares': 50, 'price': 91.23}
+>>>
+
+
+----------------------------------------------------------------------------
+Exercise 5.2: Modification of Instance Data
+--------------------------------------
+>>> goog.date = '2021-11-06'
+>>>
+>>> goog.__dict__
+{'name': 'GOOG', 'shares': 100, 'price': 490.1, 'date': '2021-11-06'}
+>>>
+>>> ibm.__dict__
+{'name': 'IBM', 'shares': 50, 'price': 91.23}
+>>>
+>>> goog.__dict__['time'] = '15:31'
+>>> goog.__dict__
+{'name': 'GOOG', 'shares': 100, 'price': 490.1, 'date': '2021-11-06', 'time': '15:31'}
+>>>
+
+
+----------------------------------------------------------------------------
+Exercise 5.3: The role of classes
+--------------------------------------
+The definitions that make up a class definition are shared by all instances of 
+that class. Notice, that all instances have a link back to their associated class:
+
+>>> goog.__class__
+<class 'stock.Stock'>
+>>>
+>>> ibm.__class__
+<class 'stock.Stock'>
+>>>
+>>> from pprint import pprint as pp
+>>>
+>>> pp(Stock.__dict__)
+mappingproxy({'__dict__': <attribute '__dict__' of 'Stock' objects>,
+              '__doc__': '\n'
+                         '    An instance of a stock holding consisting of '
+                         'name, shares, and price.\n'
+                         '    ',
+              '__init__': <function Stock.__init__ at 0x000001A797CC0CC0>,
+              '__module__': 'stock',
+              '__repr__': <function Stock.__repr__ at 0x000001A797CC0E00>,
+              '__str__': <function Stock.__str__ at 0x000001A797CC0D60>,
+              '__weakref__': <attribute '__weakref__' of 'Stock' objects>,
+              'cost': <function Stock.cost at 0x000001A797CC0EA0>,
+              'sell': <function Stock.sell at 0x000001A797CC0F40>})
+>>> goog.cost()
+49010.0
+>>> ibm.cost()
+4561.5
+>>>
+>>> Stock.__dict__['cost']
+<function Stock.cost at 0x000001A797CC0EA0>
+>>>
+>>> Stock.__dict__['cost'](goog)
+49010.0
+>>>
+>>> Stock.foo = 42
+>>>
+>>> goog.foo
+42
+>>>
+>>> ibm.foo
+42
+>>>
+>>> goog.__dict__
+{'name': 'GOOG', 'shares': 100, 'price': 490.1, 'date': '2021-11-06', 'time': '15:31'}
+>>>
+
+
+----------------------------------------------------------------------------
+Exercise 5.4: Bound methods
+--------------------------------------
+A subtle feature of Python is that invoking a method actually involves two steps 
+and something known as a bound method. For example:
+
+>>>
+>>> sll = goog.sell
+>>> sll
+<bound method Stock.sell of Stock('GOOG', 100, 490.10)>
+>>>
+>>> sll(25)
+>>> goog
+Stock('GOOG', 75, 490.10)
+>>>
+>>> sll.__func__
+<function Stock.sell at 0x000001A797CC0F40>
+>>>
+>>> Stock.__dict__['sell']
+<function Stock.sell at 0x000001A797CC0F40>
+>>>
+>>> sll.__self__
+Stock('GOOG', 75, 490.10)
+>>>
+>>> sll.__func__(sll.__self__, 25)
+>>>
+>>> sll.__self__
+Stock('GOOG', 50, 490.10)
+>>> goog
+Stock('GOOG', 50, 490.10)
+>>>
+
+
+----------------------------------------------------------------------------
+Exercise 5.5: Inheritance
+--------------------------------------
+
+>>>
+>>> class NewStock(Stock):
+...     def yow(self):
+...         print('Yow!')
+...
+>>> n = NewStock('ACME', 50, 123.45)
+>>> n
+Stock('ACME', 50, 123.45)
+>>> n.cost()
+6172.5
+>>>
+>>> n.yow()
+Yow!
+>>>
+>>> NewStock.__bases__
+(<class 'stock.Stock'>,)
+>>>
+>>> NewStock.__mro__
+(<class '__main__.NewStock'>, <class 'stock.Stock'>, <class 'object'>)
+>>>
+>>>
+>>> n.__class__
+<class '__main__.NewStock'>
+>>>
+>>> for cls in n.__class__.__mro__:
+...     if 'cost' in cls.__dict__:
+...         break
+...
+>>> cls
+<class 'stock.Stock'>
+>>>
+>>> cls.__dict__['cost']
+<function Stock.cost at 0x000001A797CC0EA0>
+>>>
+>>> Stock.__dict__['cost']
+<function Stock.cost at 0x000001A797CC0EA0>
+>>>
+>>> pp(Stock.__dict__)
+mappingproxy({'__dict__': <attribute '__dict__' of 'Stock' objects>,
+              '__doc__': '\n'
+                         '    An instance of a stock holding consisting of '
+                         'name, shares, and price.\n'
+                         '    ',
+              '__init__': <function Stock.__init__ at 0x000001A797CC0CC0>,
+              '__module__': 'stock',
+              '__repr__': <function Stock.__repr__ at 0x000001A797CC0E00>,
+              '__str__': <function Stock.__str__ at 0x000001A797CC0D60>,
+              '__weakref__': <attribute '__weakref__' of 'Stock' objects>,
+              'cost': <function Stock.cost at 0x000001A797CC0EA0>,
+              'foo': 42,
+              'sell': <function Stock.sell at 0x000001A797CC0F40>})
+>>>
+
+
+----------------------------------------------------------------------------
+Calling base class __init__ method
+--------------------------------------
+
+>>>
+>>> class A():
+...     def __init__(self):
+...             self.a = 11
+...
+>>>
+>>> a = A()
+>>> a.__dict__
+{'a': 11}
+>>> class B(A):
+...     def __init__(self):         # ********
+...             self.b = 22
+...
+>>>
+>>> b = B()
+>>>
+>>> b.__dict__
+{'b': 22}
+>>>
+>>> B.__bases__
+(<class '__main__.A'>,)
+>>> class C(A):
+...     def __init__(self):         # ********
+...             super().__init__()  # ********
+...             self.c = 33
+...
+>>>
+>>> c = C()
+>>>
+>>> c.__dict__
+{'a': 11, 'c': 33}
+>>>
+
+
+----------------------------------------------------------------------------
+
+--------------------------------------
+
+
+
+----------------------------------------------------------------------------

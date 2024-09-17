@@ -1,3 +1,10 @@
+----------------------------------------------------------------------------
+01. Introduction to Python
+----------------------------------------------------------------------------
+https://dabeaz-course.github.io/practical-python/Notes/01_Introduction/00_Overview.html
+
+----------------------------------------------------------------------------
+
 
 with open(os.path.join(os.getcwd(), 'Work', 'Data', 'portfolio.csv'), 'rt') as f:
   data = f.read()
@@ -5,3 +12,6 @@ with open(os.path.join(os.getcwd(), 'Work', 'Data', 'portfolio.csv'), 'rt') as f
 with open(os.path.join(os.getcwd(), 'Work', 'Data', 'portfolio.csv'), 'rt') as f:
   for line in f:
     print(line, end='')
+
+
+----------------------------------------------------------------------------
