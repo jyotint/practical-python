@@ -65,6 +65,13 @@ getattr
 delattr
 hasattr
 
+-------------------------
+Decorators
+-------------------------
+@staticmethod
+@classmethod 
+@property
+
 
 ----------------------------------------------------------------------------
 Dicts and Modules

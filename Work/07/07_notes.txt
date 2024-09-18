@@ -1,0 +1,419 @@
+----------------------------------------------------------------------------
+07. A Few Advanced Topics
+----------------------------------------------------------------------------
+https://dabeaz-course.github.io/practical-python/Notes/07_Advanced_Topics/00_Overview.html
+
+In this section, we look at a small set of somewhat more advanced Python features 
+that you might encounter in your day-to-day coding. Many of these topics could have
+been covered in earlier course sections, but weren’t in order to spare you further 
+head-explosion at the time.
+
+It should be emphasized that the topics in this section are only meant to serve as 
+a very basic introduction to these ideas. You will need to seek more advanced 
+material to fill out details.
+
+
+----------------------------------------------------------------------------
+7.1 Variable argument functions
+--------------------------------------
+This section covers variadic function arguments, sometimes described 
+as *args and **kwargs.
+
+
+--------------------------------------
+Positional variable arguments (*args)
+--------------------------------------
+A function that accepts any number of arguments is said to use variable arguments. 
+The extra arguments get passed as a "tuple".
+
+def f(x, *args):
+    # x -> 1
+    # args -> (2,3,4,5)
+
+f(1,2,3,4,5)
+
+
+--------------------------------------
+Keyword variable arguments (**kwargs)
+--------------------------------------
+A function can also accept any number of keyword arguments
+The extra keywords are passed in a "dictionary".
+
+def f(x, y, **kwargs):
+    # x -> 2
+    # y -> 3
+    # kwargs -> { 'flag': True, 'mode': 'fast', 'header': 'debug' }
+
+f(2, 3, flag=True, mode='fast', header='debug')
+
+
+--------------------------------------
+Combining both
+--------------------------------------
+A function can also accept any number of variable keyword and non-keyword arguments.
+
+def f(*args, **kwargs):
+    # args = (2, 3)
+    # kwargs -> { 'flag': True, 'mode': 'fast', 'header': 'debug' }
+    ...
+
+f(2, 3, flag=True, mode='fast', header='debug')
+
+
+--------------------------------------
+Passing Tuples and Dicts (while calling functions)
+--------------------------------------
+Tuples can be expanded into variable arguments.
+
+numbers = (2,3,4)
+
+f(1, *numbers)      
+# Same as f(1,2,3,4)
+
+
+Dictionaries can also be expanded into keyword arguments.
+
+options = {
+    'color' : 'red',
+    'delimiter' : ',',
+    'width' : 400
+}
+f(data, **options)
+# Same as f(data, color='red', delimiter=',', width=400)
+
+
+--------------------------------------
+Exercise 7.1: A simple example of variable arguments
+--------------------------------------
+
+>>>
+>>> def avg(x, *more):
+...     return float(x+sum(more)) / (1+len(more))
+...
+>>>
+>>> avg(10,11)
+10.5
+>>>
+>>> avg(2,3,4)
+3.0
+>>>
+>>> avg(1,2,3,4,5,6)
+3.5
+>>>
+
+
+--------------------------------------
+Exercise 7.2: Passing tuple and dicts as arguments
+--------------------------------------
+
+>>>
+>>> from stock import Stock
+>>>
+>>> data1 = ('GOOG', 11, 11.11)
+>>>
+>>> s1 = Stock(data1)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: Stock.__init__() missing 2 required positional arguments: 'shares' and 'price'
+>>>
+>>> s1 = Stock(*data1)
+>>> s1
+Stock('GOOG', 11, 11.11)
+>>>
+>>>
+>>> data2 = {'name': 'GOOG', 'shares': 22, 'price': 22.22}
+>>>
+>>> s2 = Stock(data2)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: Stock.__init__() missing 2 required positional arguments: 'shares' and 'price'
+>>>
+>>> s2 = Stock(**data2)
+>>>
+>>> s2
+Stock('GOOG', 22, 22.22)
+>>>
+>>>
+
+
+--------------------------------------
+Exercise 7.3: Creating a list of instances
+--------------------------------------
+-
+
+--------------------------------------
+Exercise 7.4: Argument pass-through
+--------------------------------------
+$ winpty py -i 07/report.py Data/portfolio.csv
+args:  ['07/report.py', 'Data/portfolio.csv']
+Reading portfolio (1) from "Data/portfolio.csv"...
+Total Value: 44671.15
+>>>
+>>> p2 = read_portfolio('Data/missing.csv')
+  >>> ValueError:: Bad Data >> Row #: 5, Data: '['MSFT', '', '51.23']', 'invalid literal for int() with base 10: '''
+  >>> ValueError:: Bad Data >> Row #: 8, Data: '['IBM', '', '70.44']', 'invalid literal for int() with base 10: '''
+>>> p2
+[Stock('AA', 100, 32.20), Stock('IBM', 50, 91.10), Stock('CAT', 150, 83.44), Stock('GE', 95, 40.37), Stock('MSFT', 50, 65.10)
+]
+>>>
+>>> p2 = read_portfolio('Data/missing.csv', silence_errors=True)
+>>> p2
+[Stock('AA', 100, 32.20), Stock('IBM', 50, 91.10), Stock('CAT', 150, 83.44), Stock('GE', 95, 40.37), Stock('MSFT', 50, 65.10)
+]
+>>>
+
+
+
+----------------------------------------------------------------------------
+7.2 Anonymous functions and lambda
+--------------------------------------
+-
+
+--------------------------------------
+Lambda: Anonymous Functions
+--------------------------------------
+def stock_name(s):
+    return s['name']
+
+portfolio.sort(key=stock_name)
+
+# vs lambda
+portfolio.sort(key=lambda s: s['name'])
+
+
+Using lambda
+- lambda is highly restricted.
+- Only a single expression is allowed.
+- No statements like if, while, etc.
+- Most common use is with functions like sort().
+
+
+--------------------------------------
+Exercise 7.6: Sorting on a field with lambda
+--------------------------------------
+
+>>> from pprint import pprint as pp
+>>>
+>>> portfolio = read_portfolio('Data/portfolio.csv')
+>>> pp(portfolio)
+[Stock('AA', 100, 32.20),
+ Stock('IBM', 50, 91.10),
+ Stock('CAT', 150, 83.44),
+ Stock('MSFT', 200, 51.23),
+ Stock('GE', 95, 40.37),
+ Stock('MSFT', 50, 65.10),
+ Stock('IBM', 100, 70.44)]
+>>>
+>>> portfolio.sort(key=lambda s: s.shares)
+>>> pp(portfolio)
+[Stock('IBM', 50, 91.10),
+ Stock('MSFT', 50, 65.10),
+ Stock('GE', 95, 40.37),
+ Stock('AA', 100, 32.20),
+ Stock('IBM', 100, 70.44),
+ Stock('CAT', 150, 83.44),
+ Stock('MSFT', 200, 51.23)]
+>>>
+>>> portfolio.sort(key=lambda s: s.name)
+>>> pp(portfolio)
+[Stock('AA', 100, 32.20),
+ Stock('CAT', 150, 83.44),
+ Stock('GE', 95, 40.37),
+ Stock('IBM', 50, 91.10),
+ Stock('IBM', 100, 70.44),
+ Stock('MSFT', 50, 65.10),
+ Stock('MSFT', 200, 51.23)]
+>>>
+
+
+
+----------------------------------------------------------------------------
+7.3 Returning function and closures
+--------------------------------------
+This section introduces the idea of using functions to create other functions.
+
+
+--------------------------------------
+Closures
+--------------------------------------
+When an inner function is returned as a result, that inner function is 
+known as a closure.
+
+def add(x, y):
+    # `do_add` is a closure
+    def do_add():
+        print('Adding', x, y)
+        return x + y
+    return do_add
+
+Essential feature: A closure retains the values of all variables needed for 
+the function to run properly later on. Think of a closure as a function plus 
+an extra environment that holds the values of variables that it depends on.
+
+Closure are an essential feature of Python. However, their use if often "subtle". 
+Common applications:
+- Use in callback functions.
+- Delayed evaluation.
+- Decorator functions.
+
+Code Repetition
+Closures can also be used as technique for avoiding excessive code repetition. 
+You can write functions that make code.
+
+
+
+--------------------------------------
+Exercise 7.7: Using Closures to Avoid Repetition
+--------------------------------------
+
+$ winpty py -i 07/typedproperty1.py
+Stock('Stock01', name: 's11-1', shares: 11, price: 11.11)
+Stock('Stock01', name: 's11-1', shares: bad data, price: 11.11)
+Stock('Stock02', name: 's21-1', shares: 21, price: 21.21)
+EXCEPTION: s21: "Expected "<class 'int'>" type!"
+>>>
+
+
+--------------------------------------
+Exercise 7.8: Simplifying Function Calls
+--------------------------------------
+
+$ winpty py -i 07/typedproperty2.py
+Stock('Stock01', name: 's11-1', shares: 11, price: 11.11)
+Stock('Stock01', name: 's11-1', shares: bad data, price: 11.11)
+Stock('Stock02', name: 's21-1', shares: 21, price: 21.21)
+EXCEPTION: s21: "Expected "<class 'int'>" type!"
+Stock('Stock03', name: 's31-1', shares: 31, price: 31.31)
+EXCEPTION: s31: "Expected "<class 'int'>" type!"
+>>>
+
+
+--------------------------------------
+Exercise 7.9: Putting it into practice
+--------------------------------------
+
+$ winpty py -i 07/stock.py
+>>>
+>>> s1 = Stock('aa', 11, 11.11)
+>>> s1
+Stock('aa', 11, 11.11)
+>>>
+>>> s1.name = 10
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+  File "E:\Learn\Active\Python\practical-python\Work\07\typedproperty.py", line 15, in prop
+    raise TypeError(f'Expected "{expected_type}" type!')
+TypeError: Expected "<class 'str'>" type!
+>>>
+>>> s1.shares = 'bad data1'
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+  File "E:\Learn\Active\Python\practical-python\Work\07\typedproperty.py", line 15, in prop
+    raise TypeError(f'Expected "{expected_type}" type!')
+TypeError: Expected "<class 'int'>" type!
+>>>
+>>> s1.price = 'bad data2'
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+  File "E:\Learn\Active\Python\practical-python\Work\07\typedproperty.py", line 15, in prop
+    raise TypeError(f'Expected "{expected_type}" type!')
+TypeError: Expected "<class 'float'>" type!
+>>>
+
+
+----------------------------------------------------------------------------
+7.4 Function decorators
+--------------------------------------
+This section introduces the concept of a decorator. This is an advanced topic for 
+which we only scratch the surface.
+
+Commentary
+There are many more subtle details to decorators than what has been presented here. 
+For example, using them in classes. Or using multiple decorators with a function. 
+However, the previous example is a good illustration of how their use tends to 
+arise. Usually, it’s in response to repetitive code appearing across a wide range 
+of function definitions. A decorator can move that code to a central definition.
+
+
+--------------------------------------
+Exercise 7.10: A decorator for timing
+--------------------------------------
+
+$ winpty py -i 07/timethis.py
+__main__::countdown() - Execution started...
+__main__::countdown() - Execution completed. Return Value: counted 2
+__main__::wrapper() - Executed in 2.00116 second(s).
+>>>
+>>> countdown(3)
+__main__::countdown() - Execution started...
+__main__::countdown() - Execution completed. Return Value: counted 3
+__main__::wrapper() - Executed in 3.00314 second(s).
+'counted 3'
+>>>
+>>> ^Z
+
+jyoti@ORION111 MINGW64 /e/Learn/Active/Python/practical-python/Work (develop)
+$ winpty py -i 07/timethis.py
+__main__::wrapper() - Execution started...
+__main__::countdown() - Executed in 2.00178 second(s).
+__main__::wrapper() - Execution completed. Return Value: counted 2
+>>>
+
+--------------------------------------
+Best Practices for Using Multiple Decorators
+--------------------------------------
+https://30dayscoding.com/blog/multiple-decorators-python
+
+
+When using multiple decorators, it's essential to follow best practices to 
+avoid common pitfalls:
+
+1. Order Matters
+As we saw earlier, the order of decorators can affect the behavior of the 
+decorated function or class. Make sure to apply decorators in the correct 
+order to achieve the desired behavior.
+
+2. Use Descriptive Names
+Choose descriptive names for your decorators to make it clear what they do. 
+This will help other developers understand the purpose of each decorator.
+
+3. Keep Decorators Simple
+Decorators should be simple and focused on a single task. Avoid complex logic 
+or multiple responsibilities in a single decorator.
+
+4. Test Thoroughly
+Test your decorators thoroughly to ensure they work as expected. Use unit tests 
+and integration tests to verify the behavior of your decorators.
+
+
+----------------------------------------------------------------------------
+7.5 Static and class methods
+--------------------------------------
+
+-------------------------
+Decorators
+-------------------------
+@staticmethod
+@staticmethod is used to define a so-called static class methods (from C++/Java). 
+A static method is a function that is part of the class, but which does not 
+operate on instances.
+
+@classmethod 
+@classmethod is used to define class methods. A class method is a method that 
+receives the class object as the first parameter instead of the instance.
+
+@property
+???
+
+--------------------------------------
+Exercise 7.11: Class Methods in Practice
+--------------------------------------
+
+$ winpty py -i 07/report.py Data/portfolio.csv
+args:  ['07/report.py', 'Data/portfolio.csv']
+Reading portfolio (1) from "Data/portfolio.csv"...
+Total Value: 44671.15
+>>>
+
+
+----------------------------------------------------------------------------
