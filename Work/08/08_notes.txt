@@ -1,0 +1,329 @@
+----------------------------------------------------------------------------
+08. Testing and debugging
+----------------------------------------------------------------------------
+https://dabeaz-course.github.io/practical-python/Notes/08_Testing_debugging/00_Overview.html
+
+This section introduces a few basic topics related to testing, logging, and debugging.
+
+
+https://realpython.com/pytest-python-testing/
+py -m pip install pytest
+py -m pip install pytest-randomly
+py -m pip install pytest-cov
+
+
+
+
+----------------------------------------------------------------------------
+8.1 Testing
+--------------------------------------
+Testing Rocks, Debugging Sucks
+The dynamic nature of Python makes testing critically important to most 
+applications. There is no compiler to find your bugs. The only way to find 
+bugs is to run the code and make sure you try out all of its features.
+
+
+--------------------------------------
+Assertions
+--------------------------------------
+The assert statement is an internal check for the program. If an expression 
+is not true, it raises a AssertionError exception.
+
+assert statement syntax.
+    assert <expression> [, 'Diagnostic message']
+For example.
+    assert isinstance(10, int), 'Expected int'
+
+NOTE: 
+It shouldn’t be used to check the user-input (i.e., data entered on a web form 
+    or something). 
+***** It’s purpose is more for internal checks 
+    and "invariants" (conditions that should always be true). ***
+
+
+--------------------------------------
+Contract Programming
+--------------------------------------
+Also known as Design By Contract, liberal use of assertions is an approach for 
+designing software. It prescribes that software designers should define precise 
+interface specifications for the components of the software.
+
+For example, you might put assertions on all inputs of a function.
+
+def add(x, y):
+    assert isinstance(x, int), 'Expected int'
+    assert isinstance(y, int), 'Expected int'
+    return x + y
+
+
+
+--------------------------------------
+Inline Tests
+--------------------------------------
+Assertions can also be used for simple tests.
+
+def add(x, y):
+    return x + y
+assert add(2,2) == 4
+
+This way you are including the test in the same module as your code.
+
+Benefit: If the code is obviously broken, attempts to import the module will crash.
+This is not recommended for exhaustive testing. It’s more of a basic “smoke test”. 
+Does the function work on any example at all? If not, then something is 
+definitely broken.
+
+
+--------------------------------------
+Exercise 8.1: Writing Unit Tests - unittest
+--------------------------------------
+
+$ winpty py 08/test_stock_unittest.py
+...
+----------------------------------------------------------------------
+Ran 3 tests in 0.001s
+
+OK
+
+jyoti@ORION111 MINGW64 /e/Learn/Active/Python/practical-python/Work (develop)
+$ winpty py 08/test_stock_unittest.py
+.F.
+======================================================================
+FAIL: test_create (__main__.TestStock.test_create)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "E:\Learn\Active\Python\practical-python\Work\08\test_stock_unittest.py", line 11, in test_create
+    self.assertEqual(s.name, 'MSFT1')
+AssertionError: 'MSFT' != 'MSFT1'
+- MSFT
++ MSFT1
+?     +
+
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.001s
+
+FAILED (failures=1)
+
+
+--------------------------------------
+Exercise 8.1: Writing Unit Tests - pytest
+--------------------------------------
+
+jyoti@ORION111 MINGW64 /e/Learn/Active/Python/practical-python/Work (develop)
+$ winpty py -m pytest
+========================================================== test session starts ===========================================================
+platform win32 -- Python 3.12.3, pytest-8.3.3, pluggy-1.5.0
+rootdir: E:\Learn\Active\Python\practical-python\Work
+collected 7 items
+
+08\test_stock_pytest.py ...                                                                                                         [ 42%]
+08\test_stock_unittest.py ....                                                                                                      [100%]
+
+=========================================================== 7 passed in 0.06s ============================================================
+
+
+
+jyoti@ORION111 MINGW64 /e/Learn/Active/Python/practical-python/Work (develop)
+$ winpty py -m pytest
+========================================================== test session starts ===========================================================
+platform win32 -- Python 3.12.3, pytest-8.3.3, pluggy-1.5.0
+rootdir: E:\Learn\Active\Python\practical-python\Work
+collected 7 items
+
+08\test_stock_pytest.py F..                                                                                                         [ 42%]
+08\test_stock_unittest.py ....                                                                                                      [100%]
+
+================================================================ FAILURES ================================================================
+______________________________________________________________ test_create _______________________________________________________________
+
+    def test_create():
+        s = Stock('MSFT', 100, 101.6)
+>       assert s.name == 'MSFT1'
+E       AssertionError: assert 'MSFT' == 'MSFT1'
+E
+E         - MSFT1
+E         ?     -
+E         + MSFT
+
+08\test_stock_pytest.py:9: AssertionError
+======================================================== short test summary info =========================================================
+FAILED 08/test_stock_pytest.py::test_create - AssertionError: assert 'MSFT' == 'MSFT1'
+====================================================== 1 failed, 6 passed in 0.11s =======================================================
+
+
+
+jyoti@ORION111 MINGW64 /e/Learn/Active/Python/practical-python/Work (develop)
+$ winpty py -m pytest --durations=2 -vv
+========================================================== test session starts ===========================================================
+platform win32 -- Python 3.12.3, pytest-8.3.3, pluggy-1.5.0 -- C:\Users\jyoti\AppData\Local\Programs\Python\Python312\python.exe
+cachedir: .pytest_cache
+rootdir: E:\Learn\Active\Python\practical-python\Work
+collected 7 items
+
+08/test_stock_pytest.py::test_create PASSED                                                                                         [ 14%]
+08/test_stock_pytest.py::test_cost PASSED                                                                                           [ 28%]
+08/test_stock_pytest.py::test_sell PASSED                                                                                           [ 42%]
+08/test_stock_unittest.py::TestStock::test_bad_shares PASSED                                                                        [ 57%]
+08/test_stock_unittest.py::TestStock::test_cost PASSED                                                                              [ 71%]
+08/test_stock_unittest.py::TestStock::test_create PASSED                                                                            [ 85%]
+08/test_stock_unittest.py::TestStock::test_sell PASSED                                                                              [100%]
+
+========================================================== slowest 2 durations ===========================================================
+0.00s setup    08/test_stock_unittest.py::TestStock::test_bad_shares
+0.00s setup    08/test_stock_pytest.py::test_create
+=========================================================== 7 passed in 0.06s ============================================================
+
+
+
+jyoti@ORION111 MINGW64 /e/Learn/Active/Python/practical-python/Work (develop)
+$ py -m pip install pytest-randomly
+
+
+jyoti@ORION111 MINGW64 /e/Learn/Active/Python/practical-python/Work (develop)
+$ winpty py -m pytest --durations=2 -vv
+========================================================== test session starts ===========================================================
+platform win32 -- Python 3.12.3, pytest-8.3.3, pluggy-1.5.0 -- C:\Users\jyoti\AppData\Local\Programs\Python\Python312\python.exe
+cachedir: .pytest_cache
+Using --randomly-seed=4204629985
+rootdir: E:\Learn\Active\Python\practical-python\Work
+plugins: randomly-3.15.0
+collected 7 items
+
+08/test_stock_pytest.py::test_cost PASSED                                                                                           [ 14%]
+08/test_stock_pytest.py::test_sell PASSED                                                                                           [ 28%]
+08/test_stock_pytest.py::test_create PASSED                                                                                         [ 42%]
+08/test_stock_unittest.py::TestStock::test_bad_shares PASSED                                                                        [ 57%]
+08/test_stock_unittest.py::TestStock::test_sell PASSED                                                                              [ 71%]
+08/test_stock_unittest.py::TestStock::test_create PASSED                                                                            [ 85%]
+08/test_stock_unittest.py::TestStock::test_cost PASSED                                                                              [100%]
+
+========================================================== slowest 2 durations ===========================================================
+0.00s teardown 08/test_stock_pytest.py::test_cost
+0.00s setup    08/test_stock_unittest.py::TestStock::test_bad_shares
+=========================================================== 7 passed in 0.06s ============================================================
+
+
+
+jyoti@ORION111 MINGW64 /e/Learn/Active/Python/practical-python/Work (develop)
+$ py -m pip install pytest-cov
+
+
+
+jyoti@ORION111 MINGW64 /e/Learn/Active/Python/practical-python/Work (develop)
+$ winpty py -m pytest --durations=2 -vv --cov
+========================================================== test session starts ===========================================================
+platform win32 -- Python 3.12.3, pytest-8.3.3, pluggy-1.5.0 -- C:\Users\jyoti\AppData\Local\Programs\Python\Python312\python.exe
+cachedir: .pytest_cache
+Using --randomly-seed=866050901
+rootdir: E:\Learn\Active\Python\practical-python\Work
+plugins: cov-5.0.0, randomly-3.15.0
+collected 7 items
+
+08/test_stock_pytest.py::test_create PASSED                                                                                         [ 14%]
+08/test_stock_pytest.py::test_sell PASSED                                                                                           [ 28%]
+08/test_stock_pytest.py::test_cost PASSED                                                                                           [ 42%]
+08/test_stock_unittest.py::TestStock::test_cost PASSED                                                                              [ 57%]
+08/test_stock_unittest.py::TestStock::test_sell PASSED                                                                              [ 71%]
+08/test_stock_unittest.py::TestStock::test_bad_shares PASSED                                                                        [ 85%]
+08/test_stock_unittest.py::TestStock::test_create PASSED                                                                            [100%]
+
+---------- coverage: platform win32, python 3.12.3-final-0 -----------
+Name                        Stmts   Miss  Cover
+-----------------------------------------------
+08\stock.py                    18      2    89%
+08\test_stock_pytest.py        14      0   100%
+08\test_stock_unittest.py      22      1    95%
+08\typedproperty.py            14      0   100%
+-----------------------------------------------
+TOTAL                          68      3    96%
+
+
+========================================================== slowest 2 durations ===========================================================
+0.00s setup    08/test_stock_pytest.py::test_create
+0.00s setup    08/test_stock_unittest.py::TestStock::test_create
+=========================================================== 7 passed in 0.16s ============================================================
+
+
+
+
+----------------------------------------------------------------------------
+8.2 Logging, error handling and diagnostics
+--------------------------------------
+
+
+
+
+--------------------------------------
+Exercise 8.2: Adding logging to a module
+--------------------------------------
+
+jyoti@ORION111 MINGW64 /e/Learn/Active/Python/practical-python/Work (develop)
+$ winpty py -i 08/report.py Data/portfolio.csv
+args:  ['08/report.py', 'Data/portfolio.csv']
+Reading portfolio (1) from "Data/portfolio.csv"...
+Total Value: 44671.15
+>>> 
+
+
+jyoti@ORION111 MINGW64 /e/Learn/Active/Python/practical-python/Work (develop)
+$ winpty py -i 08/report.py Data/missing.csv
+args:  ['08/report.py', 'Data/missing.csv']
+Reading portfolio (1) from "Data/missing.csv"...
+  >>>              Bad Data >> Row #: 5, Data: '['MSFT', '', '51.23']'
+  >>>              Bad Data >> Row #: 8, Data: '['IBM', '', '70.44']'
+Total Value: 27381.15
+>>>
+>>> import logging
+>>> import report
+>>>
+>>> logging.basicConfig()
+>>>
+>>> a = report.get_portfolio('Data/missing.csv')
+WARNING:fileparse:  >>>              Bad Data >> Row #: 5, Data: '['MSFT', '', '51.23']'
+WARNING:fileparse:  >>>              Bad Data >> Row #: 8, Data: '['IBM', '', '70.44']'
+>>>
+>>>
+>>> logging.getLogger('fileparse').setLevel(logging.DEBUG)
+>>>
+>>> a = report.get_portfolio('Data/missing.csv')
+WARNING:fileparse:  >>>              Bad Data >> Row #: 5, Data: '['MSFT', '', '51.23']'
+DEBUG:fileparse:  >>> ValueError:: Bad Data >> Exception: 'invalid literal for int() with base 10: '''
+WARNING:fileparse:  >>>              Bad Data >> Row #: 8, Data: '['IBM', '', '70.44']'
+DEBUG:fileparse:  >>> ValueError:: Bad Data >> Exception: 'invalid literal for int() with base 10: '''
+>>>
+
+
+
+--------------------------------------
+Exercise 8.3: Adding Logging to a Program
+--------------------------------------
+
+# This file sets up basic configuration of the logging module.
+# Change settings here to adjust logging output as needed.
+import logging
+logging.basicConfig(
+    filename = 'app.log',            # Name of the log file (omit to use stderr)
+    filemode = 'w',                  # File mode (use 'a' to append)
+    level    = logging.WARNING,      # Logging level (DEBUG, INFO, WARNING, ERROR, or CRITICAL)
+)
+
+
+----------------------------------------------------------------------------
+8.3 Debugging
+--------------------------------------
+
+
+--------------------------------------
+
+--------------------------------------
+
+
+
+--------------------------------------
+
+--------------------------------------
+
+
+
+----------------------------------------------------------------------------
