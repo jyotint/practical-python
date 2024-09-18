@@ -22,9 +22,9 @@ def minutes(tm):
     hour = int(fields[0])
     minute = int(fields[1])
     if hour == 12:
-       hour = 0
+        hour = 0
     if am_pm == 'pm':
-       hour += 12
+        hour += 12
     return hour*60 + minute
 
 # Convert time in minutes to a format string
@@ -178,6 +178,3 @@ m.register(BasicPrinter())
 m.register(LogPrinter("stocklog.csv"))
 
 m.run(1)
-
-
-   

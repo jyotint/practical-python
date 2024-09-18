@@ -1,0 +1,353 @@
+----------------------------------------------------------------------------
+06. Generators
+----------------------------------------------------------------------------
+https://dabeaz-course.github.io/practical-python/Notes/06_Generators/00_Overview.html
+
+Iteration (the for-loop) is one of the most common programming patterns in Python. 
+Programs do a lot of iteration to process lists, read files, query databases, 
+and more. One of the most powerful features of Python is the ability to customize 
+and redefine iteration in the form of a so-called “generator function.” 
+This section introduces this topic. By the end, you’ll write some programs that 
+process some real-time streaming data in an interesting way.
+
+--------------------------------------
+A generator is any function that uses the yield statement.
+
+
+----------------------------------------------------------------------------
+One important observation about this–generally code is considered “Pythonic” 
+if it speaks the common vocabulary of how other parts of Python normally work. 
+
+For "CONTAINER" objects, supporting iteration, indexing, containment, and 
+other kinds of operators is an important part of this.
+
+
+----------------------------------------------------------------------------
+6.1 Iteration Protocol
+--------------------------------------
+This section looks at the underlying process of iteration.
+
+
+--------------------------------------
+Exercise 6.1: Iteration Illustrated
+--------------------------------------
+>>> a = [1,2,3]
+>>> i = a.__iter__()
+>>> i.__next__()
+1
+>>> i.__next__()
+2
+>>> i.__next__()
+3
+>>> i.__next__()
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+StopIteration
+>>>
+
+>>>
+>>> f = open('Data/portfolio.csv')
+>>> f.__iter__()
+<_io.TextIOWrapper name='Data/portfolio.csv' mode='r' encoding='cp1252'>
+>>> next(f)
+'name,shares,price\n'
+>>> next(f)
+'"AA",100,32.20\n'
+>>> next(f)
+'"IBM",50,91.10\n'
+>>> next(f)
+'"CAT",150,83.44\n'
+>>> next(f)
+'"MSFT",200,51.23\n'
+>>> next(f)
+'"GE",95,40.37\n'
+>>> next(f)
+'"MSFT",50,65.10\n'
+>>> next(f)
+'"IBM",100,70.44\n'
+>>> next(f)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+StopIteration
+>>>
+
+
+
+----------------------------------------------------------------------------
+6.2 Customizing Iteration
+--------------------------------------
+This section looks at how you can customize iteration using a generator function.
+
+
+----------------------------------------------------------------------------
+Generators
+--------------------------------------
+
+A generator is any function that uses the yield statement.
+
+Observation: A generator function implements the same low-level protocol that the 
+for statements uses on lists, tuples, dicts, files, etc.
+
+
+
+----------------------------------------------------------------------------
+Exercise 6.4: A Simple Generator
+--------------------------------------
+If you ever find yourself wanting to customize iteration, you should always 
+think generator functions. They’re easy to write—make a function that carries 
+out the desired iteration logic and use yield to emit values.
+
+>>>
+>>> def extract_stock_data(filename, stock_name):
+...     with open(filename, 'r') as f:
+...             for line in f:
+...                     if stock_name in line:
+...                             yield line
+...
+>>>
+>>> for line in open('Data/portfolio.csv'):
+...     print(line, end='')
+...
+name,shares,price
+"AA",100,32.20
+"IBM",50,91.10
+"CAT",150,83.44
+"MSFT",200,51.23
+"GE",95,40.37
+"MSFT",50,65.10
+"IBM",100,70.44
+>>>
+>>> extract_stock_data('Data/portfolio.csv', 'IBM')
+<generator object extract_stock_data at 0x0000014518C4BF10>
+>>>
+>>> for line in extract_stock_data('Data/portfolio.csv', 'IBM'):
+...     print(line, end='')
+...
+"IBM",50,91.10
+"IBM",100,70.44
+>>>
+>>> for line in extract_stock_data('Data/portfolio.csv', 'MSFT'):
+...     print(line, end='')
+...
+"MSFT",200,51.23
+"MSFT",50,65.10
+>>>
+
+
+----------------------------------------------------------------------------
+6.3 Producers, Consumers and Pipelines
+--------------------------------------
+Generators are a useful tool for setting various kinds of producer/consumer 
+problems and dataflow pipelines. This section discusses that.
+
+
+----------------------------------------------------------------------------
+Exercise 6.9: Setting up a more complex pipeline
+--------------------------------------
+
+>>> from rt_follow0608 import follow
+>>> import csv
+>>> lines = follow('Data/stocklog.csv')
+>>> rows = csv.reader(lines)
+>>> for row in rows:
+...     print(row)
+...
+['IBM', '102.81', '6/11/2007', '09:31.57', '-0.26', '102.87', '102.81', '102.77', '104241']
+['MRK', '49.84', '6/11/2007', '09:31.57', '-0.30', '50.30', '49.84', '49.66', '1318839']
+['VZ', '42.84', '6/11/2007', '09:31.58', '-0.23', '42.95', '42.84', '42.78', '159301']
+['HPQ', '45.67', '6/11/2007', '09:31.59', '-0.03', '45.80', '45.67', '45.59', '181294']
+['MCD', '50.93', '6/11/2007', '09:32.01', '-0.48', '51.47', '50.93', '50.80', '123335']
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+  File "E:\Learn\Active\Python\practical-python\Work\06\rt_follow0608.py", line 20, in follow
+    time.sleep(0.1)
+KeyboardInterrupt
+>>>
+
+--------------------------------------
+LOGs - 06/ticker.py 
+--------------------------------------
+$ winpty py stocksim.py
+
+$ winpty py -i 06/ticker.py
+main()::Calling get_portfolio()...
+
+main()::Calling follow()...
+main()::Calling parse_stock_data()...
+parse_stock_data()::Calling select_columns()...
+parse_stock_data()::Calling convert_types()...
+parse_stock_data()::Calling make_dict()...
+parse_stock_data()::Returning.
+main()::Calling filter_data()...
+main()::Starting loop...
+  filter_data():: names: "['AA', 'IBM', 'CAT', 'MSFT', 'GE', 'MSFT', 'IBM']"
+  filter_data():: rows:  "<generator object make_dict at 0x000001708E9C8310>"
+  make_dict():: headers: "['name', 'price', 'change']"
+  make_dict():: rows:    "<generator object convert_types at 0x000001708E95B780>"
+  convert_types():: types: "[<class 'str'>, <class 'float'>, <class 'float'>]"
+  convert_types():: rows:  "<generator object select_columns at 0x000001708E9C8220>"
+  select_columns():: indices: "[0, 1, 4]"
+  select_columns():: rows:    "<_csv.reader object at 0x000001708E97AC80>"
+  select_columns():: Inside loop: "IBM"
+  convert_types()::  Inside loop: "IBM"
+  make_dict()::      Inside loop: "IBM"
+  filter_data()::    Inside loop: "IBM"
+main()::Inside loop...
+{'name': 'IBM', 'price': 103.41, 'change': 0.34}
+  select_columns():: Inside loop: "XOM"
+  convert_types()::  Inside loop: "XOM"
+  make_dict()::      Inside loop: "XOM"
+  filter_data()::    Inside loop: "XOM"
+  select_columns():: Inside loop: "PFE"
+  convert_types()::  Inside loop: "PFE"
+  make_dict()::      Inside loop: "PFE"
+  filter_data()::    Inside loop: "PFE"
+  select_columns():: Inside loop: "AXP"
+  convert_types()::  Inside loop: "AXP"
+  make_dict()::      Inside loop: "AXP"
+  filter_data()::    Inside loop: "AXP"
+  select_columns():: Inside loop: "IBM"
+  convert_types()::  Inside loop: "IBM"
+  make_dict()::      Inside loop: "IBM"
+  filter_data()::    Inside loop: "IBM"
+main()::Inside loop...
+{'name': 'IBM', 'price': 103.4, 'change': 0.33}
+  select_columns():: Inside loop: "PG"
+  convert_types()::  Inside loop: "PG"
+  make_dict()::      Inside loop: "PG"
+  filter_data()::    Inside loop: "PG"
+
+
+----------------------------------------------------------------------------
+6.4 More Generators
+--------------------------------------
+This section introduces a few additional generator related topics including 
+generator expressions and the itertools module.
+
+
+--------------------------------------
+Generator Expressions
+--------------------------------------
+A generator version of a list comprehension.
+
+Differences with List Comprehensions.
+- Does not construct a list.
+- Only useful purpose is iteration.
+- Once consumed, can’t be reused.
+
+
+----------------------------------------------------------------------------
+Why Generators
+--------------------------------------
+1. Many problems are much more clearly expressed in terms of iteration.
+1.1 Looping over a collection of items and performing some kind of operation (searching, replacing, modifying, etc.).
+1.2 Processing pipelines can be applied to a wide range of data processing problems.
+
+2. Better memory efficiency.
+2.1 >>> Only produce values when needed.
+2.2 >>> Contrast to constructing giant lists. *******************
+2.3 >>> Can operate on streaming data
+
+3. Generators encourage code reuse
+3.1 >>> Separates the iteration from code that uses the iteration
+3.2 >>> You can build a toolbox of interesting iteration functions and mix-n-match.
+
+
+
+--------------------------------------
+itertools module
+--------------------------------------
+The itertools is a library module with various functions designed to 
+help with iterators/generators.
+
+itertools.chain(s1,s2)
+itertools.count(n)
+itertools.cycle(s)
+itertools.dropwhile(predicate, s)
+itertools.groupby(s)
+itertools.ifilter(predicate, s)
+itertools.imap(function, s1, ... sN)
+itertools.repeat(s, n)
+itertools.tee(s, ncopies)
+itertools.izip(s1, ... , sN)
+
+https://www.dabeaz.com/generators/
+
+
+
+--------------------------------------
+Exercise 6.13: Generator Expressions
+--------------------------------------
+
+>>>
+>>> a = [1, 2, 3, 4]
+>>>
+>>> b = [ 2*x for x in a ]
+>>> b
+[2, 4, 6, 8]
+>>>
+>>> c = ( 2*x for x in a )
+>>> c
+<generator object <genexpr> at 0x000001759468DF20>
+>>>
+>>> for i in c:
+...     print(i, end=' ')
+...
+2 4 6 8 >>>
+>>>
+>>> c
+<generator object <genexpr> at 0x000001759468DF20>
+>>>
+>>> for i in c:
+...     print(i, end=' ')
+...
+>>>
+
+
+--------------------------------------
+Exercise 6.14: Generator Expressions in Function Arguments
+--------------------------------------
+
+>>> a = [1, 2, 3, 4]
+>>>
+>>> d1 = sum(x*x for x in a)        # A generator expression
+>>> d1
+30
+>>> d1
+30
+>>> d2 = sum([x*x for x in a])       # A list comprehension
+>>> d2
+30
+>>>
+
+
+$ winpty py -i 06/report.py portfolio.csv
+args:  ['06/report.py', 'portfolio.csv']
+Reading portfolio (1) from "portfolio.csv"...
+Total Value: 44671.15
+>>>
+>>> portfolio = get_portfolio('portfolio.csv')
+>>>
+>>> portfolio.total_value
+44671.15
+>>>
+>>> "MSFT" in portfolio
+True
+>>>
+
+
+--------------------------------------
+Exercise 6.15: Code simplification
+--------------------------------------
+Generators expressions are often a useful replacement for small generator functions. For example, instead of writing a function like this:
+
+def filter_symbols(rows, names):
+    for row in rows:
+        if row['name'] in names:
+            yield row
+
+You could write something like this:
+
+rows = (row for row in rows if row['name'] in names)
+
+----------------------------------------------------------------------------

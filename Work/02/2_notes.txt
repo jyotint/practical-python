@@ -3,6 +3,12 @@
 ----------------------------------------------------------------------------
 https://dabeaz-course.github.io/practical-python/Notes/02_Working_with_data/00_Overview.html
 
+To write useful programs, you need to be able to work with data. This section 
+introduces Python’s core data structures of tuples, lists, sets, and dictionaries 
+and discusses common data handling idioms. The last part of this section dives a 
+little deeper into Python’s underlying object model.
+
+
 -----------------------------------------------------------------
 # Exercise 2.8: How to format numbers
 -----------------------------------------------------------------

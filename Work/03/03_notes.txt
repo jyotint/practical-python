@@ -3,6 +3,14 @@
 ----------------------------------------------------------------------------
 https://dabeaz-course.github.io/practical-python/Notes/03_Program_organization/00_Overview.html
 
+So far, we’ve learned some Python basics and have written some short scripts. 
+However, as you start to write larger programs, you’ll want to get organized. 
+This section dives into greater details on writing functions, handling errors, 
+and introduces modules. By the end you should be able to write programs that 
+are subdivided into functions across multiple files. We’ll also give some useful 
+code templates for writing more useful scripts.
+
+
 --------------------------------------
 Exercise 3.11: Module imports
 --------------------------------------

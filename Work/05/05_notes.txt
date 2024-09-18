@@ -3,6 +3,69 @@
 ----------------------------------------------------------------------------
 https://dabeaz-course.github.io/practical-python/Notes/05_Object_model/00_Overview.html
 
+This section covers some of the inner workings of Python objects. Programmers coming 
+from other programming languages often find Python’s notion of classes lacking in 
+features. For example, there is no notion of access-control (e.g., private, 
+protected), the whole self argument feels weird, and frankly, working with objects 
+sometimes feel like a “free for all.” Maybe that’s true, but we’ll find out how it 
+all works as well as some common programming idioms to better encapsulate the 
+internals of objects.
+
+It’s not necessary to worry about the inner details to be productive. However, most 
+Python coders have a basic awareness of how classes work. So, that’s why we’re 
+covering it.
+
+
+----------------------------------------------------------------------------
+Attributes (Application, Module, Class, Object)
+--------------------------------------
+
+-------------------------
+Application
+-------------------------
+globals()
+
+
+-------------------------
+Module
+-------------------------
+__dict__
+
+
+-------------------------
+Class definition
+-------------------------
+__init__
+__str__         # Used with `str()`
+__repr__        # Used with `repr()`    Note: The convention for __repr__() is to return a string that, when fed to eval(), will recreate the underlying object. If this is not possible, some kind of easily readable representation is used instead.
+__len__         # Used by `len()`
+__contains__    # Used by `in` operator. 'MSFT' in portfolio.
+
+# To support Iterable
+__iter__
+
+# To support Indexing
+__getitem__
+__setitem__
+__delitem__
+
+ # Built In
+__dict__
+__class__
+__bases__
+__mro__         # MRO - Method Resolution Order
+
+-------------------------
+Object (Instance of a Class)
+-------------------------
+__self__
+__dict__
+setattr
+getattr
+delattr
+hasattr
+
+
 ----------------------------------------------------------------------------
 Dicts and Modules
 --------------------------------------
@@ -76,38 +139,6 @@ The base classes are stored in a tuple in each class.
 >>>
 
 This provides a link to parent classes.
-
-
-----------------------------------------------------------------------------
-Attributes
---------------------------------------
-
------ Application
-globals()
-
-
------ Module
-__dict__
-
-
------ class
-__init__
-__str__         # Used with `str()`
-__repr__        # Used with `repr()`    Note: The convention for __repr__() is to return a string that, when fed to eval(), will recreate the underlying object. If this is not possible, some kind of easily readable representation is used instead.
-
-__dict__
-__class__
-__bases__
-__mro__         MRO - Method Resolution Order
-
-
------ Instance of a Class
-__self__
-__dict__
-setattr
-getattr
-delattr
-hasattr
 
 
 ----------------------------------------------------------------------------

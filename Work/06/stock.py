@@ -50,6 +50,7 @@ class Stock:
             raise TypeError('Expected "int" type!')
         self._shares = value
 
+    @property
     def cost(self) -> float:
         '''
         Return the cost as shares*price
