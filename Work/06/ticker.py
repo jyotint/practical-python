@@ -28,7 +28,7 @@ def make_dict(rows: list, headers: list[str]):
         print(f'  make_dict()::      Inside loop: "{row[0]}"')
         yield dict(zip(headers, row))
 
-# Exercise 6.15: Code simplification
+# Exercise 6.15: Code simplification (- )6.4 More Generators)
 # def filter_data(rows: dict, names: list[str]):
 #     print(f'  filter_data():: names: "{names}"')
 #     print(f'  filter_data():: rows:  "{rows}"')
